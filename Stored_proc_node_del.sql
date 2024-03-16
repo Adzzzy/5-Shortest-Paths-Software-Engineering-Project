@@ -1,0 +1,41 @@
+/*
+PROJECT GROUP: PATH-12
+
+DATE: 12/10/2023
+
+AUTHOR:AYMAN SHAAWI
+
+INPUT:
+	@NODE_NAME, String of node name 
+
+FUNCTIONALITY:
+	Deletes node and all edges containing the node
+
+EXAMPLE:
+	EXEC DeleteNode @NODE_NAME;
+	or
+	EXEC DeleteNode 'A';
+
+*/
+
+
+
+--STORED PROCEDURE FOR DELETING NODES
+USE GraphDemo;
+GO
+
+CREATE PROCEDURE DeleteNode
+	@NODE VARCHAR(MAX)
+AS
+
+--FIND THE NODE ID
+DECLARE @NODE_ID INT;
+
+SET @NODE_ID = (SELECT JSON_VALUE($node_id, '$.id') FROM NodeTable WHERE name = @NODE); 
+
+--DELETE THE NODE FROM THE NODE LIST
+DELETE FROM NodeTable WHERE (JSON_VALUE($node_id, '$.id') = @NODE_ID);
+
+
+--DELETE ALL EDGES WITH THE NODE IN THEM
+DELETE FROM EdgeTable WHERE (JSON_VALUE($from_id, '$.id') = @NODE_ID OR JSON_VALUE($to_id, '$.id') = @NODE_ID);
